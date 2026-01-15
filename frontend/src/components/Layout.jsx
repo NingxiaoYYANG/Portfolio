@@ -7,8 +7,8 @@ const navItems = [
   { name: 'Home', path: '/', sectionId: 'hero' },
   { name: 'Game', path: '/', sectionId: 'play' },
   { name: 'About', path: '/', sectionId: 'about' },
-  { name: 'Projects', path: '/', sectionId: 'projects' },
   { name: 'Experience', path: '/', sectionId: 'experience' },
+  { name: 'Projects', path: '/', sectionId: 'projects' },
   { name: 'Contact', path: '/', sectionId: 'contact' },
 ];
 
@@ -90,7 +90,7 @@ function LayoutContent({ children }) {
     if (sections.length === 0) return;
 
     // 仅使用滚动位置来判断当前 section，逻辑更简单、可预期
-    // sections 顺序与 navItems 保持一致：hero -> play -> about -> projects -> experience -> contact
+    // sections 顺序与 navItems 保持一致：hero -> play -> about -> experience -> projects -> contact
     // handleScroll 会在滚动时更新 activeSection
     const handleScroll = () => {
       const scrollPosition = window.scrollY + 200; // 视口上方 200px 作为判断点

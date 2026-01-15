@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import Modal from './Modal';
+import { useRecruiterMode } from '../contexts/RecruiterModeContext';
 
 const colorMap = {
   blue: 'from-blue-500 to-blue-600',
@@ -40,6 +41,7 @@ const skills = [
 ];
 
 export default function SkillTree() {
+  const { recruiterMode } = useRecruiterMode();
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [selectedSkill, setSelectedSkill] = useState(null);
   const categories = ['All', ...new Set(skills.map(s => s.category))];
@@ -48,10 +50,31 @@ export default function SkillTree() {
     ? skills
     : skills.filter(s => s.category === selectedCategory);
 
+  // Map numeric level to friendly label for recruiters
+  const levelLabel = (level) => {
+    if (level >= 85) return 'Used in production';
+    if (level >= 80) return 'Strong';
+    if (level >= 70) return 'Comfortable';
+    return 'Familiar';
+  };
+
+  // 将数值映射为 1–4 档，用于分段小条
+  const segmentsFilled = (level) => {
+    if (level >= 85) return 4;
+    if (level >= 80) return 3;
+    if (level >= 70) return 2;
+    return 1;
+  };
+
   const modalTitle = useMemo(() => {
     if (!selectedSkill) return '';
     return `${selectedSkill.name} · ${selectedSkill.category}`;
   }, [selectedSkill]);
+
+  // Recruiter Mode 切换时，默认 tab：ON → Backend，OFF → All
+  useEffect(() => {
+    setSelectedCategory(recruiterMode ? 'Backend' : 'All');
+  }, [recruiterMode]);
 
   return (
     <div className="mb-12">
@@ -75,33 +98,78 @@ export default function SkillTree() {
       </div>
 
       {/* Skills Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <motion.div
+        key={`${selectedCategory}-${recruiterMode ? 'recruiter' : 'portfolio'}`}
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.2 }}
+        className="grid grid-cols-1 md:grid-cols-2 gap-6"
+      >
         {filteredSkills.map((skill, index) => (
           <motion.div
             key={skill.name}
             initial={{ opacity: 0, x: -20 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
-            transition={{ delay: index * 0.1 }}
+            transition={{ delay: index * 0.08 }}
             className="bg-gray-800/70 hover:bg-gray-800 p-6 rounded-2xl border border-white/5 hover:border-white/10 transition-colors cursor-pointer"
             onClick={() => setSelectedSkill(skill)}
           >
             <div className="flex justify-between items-center mb-2">
               <h3 className="text-xl font-semibold">{skill.name}</h3>
-              <span className="text-gray-400">{skill.level}%</span>
+              <span className="text-[11px] uppercase tracking-wide text-gray-400">
+                {levelLabel(skill.level)}
+              </span>
             </div>
-            <div className="w-full bg-gray-700 rounded-full h-3 overflow-hidden">
-              <motion.div
-                initial={{ width: 0 }}
-                whileInView={{ width: `${skill.level}%` }}
-                viewport={{ once: true }}
-                transition={{ duration: 1, delay: index * 0.1 }}
-                className={`h-full bg-gradient-to-r ${colorMap[skill.color]} rounded-full`}
-              />
-            </div>
+
+            {/* Recruiter Mode OFF：4 段固定小条，不显示数值 */}
+            {!recruiterMode && (
+              <div className="flex items-center gap-1 mt-1">
+                {Array.from({ length: 4 }).map((_, i) => {
+                  const filled = i < segmentsFilled(skill.level);
+                  return (
+                    <motion.div
+                      key={i}
+                      initial={{ scaleX: 0 }}
+                      whileInView={{ scaleX: 1 }}
+                      viewport={{ once: true }}
+                      transition={{ duration: 0.4, delay: index * 0.08 + i * 0.05 }}
+                      className={`h-2 flex-1 rounded-full origin-left ${
+                        filled
+                          ? `bg-gradient-to-r ${colorMap[skill.color]}`
+                          : 'bg-gray-700'
+                      }`}
+                    />
+                  );
+                })}
+              </div>
+            )}
+
+            {/* Recruiter Mode ON：改为技能 chips + 证据 */}
+            {recruiterMode && (
+              <div className="mt-3">
+                {skill.details && (
+                  <p className="text-sm text-gray-300 mb-3">
+                    {skill.details}
+                  </p>
+                )}
+                {skill.related?.length > 0 && (
+                  <div className="flex flex-wrap gap-2">
+                    {skill.related.map((r) => (
+                      <span
+                        key={r}
+                        className="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-gray-100 text-xs"
+                      >
+                        {r}
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
           </motion.div>
         ))}
-      </div>
+      </motion.div>
 
       <Modal
         isOpen={!!selectedSkill}

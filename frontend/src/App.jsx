@@ -9,7 +9,6 @@ import PageTransition from './components/PageTransition';
 const Home = lazy(() => import('./pages/Home'));
 const About = lazy(() => import('./pages/About'));
 const Projects = lazy(() => import('./pages/Projects'));
-const Experience = lazy(() => import('./pages/Experience'));
 const Contact = lazy(() => import('./pages/Contact'));
 const Game = lazy(() => import('./pages/Game'));
 
@@ -54,16 +53,6 @@ function AppRoutes() {
             <PageTransition>
               <Suspense fallback={<LoadingFallback />}>
                 <Projects />
-              </Suspense>
-            </PageTransition>
-          }
-        />
-        <Route
-          path="/experience"
-          element={
-            <PageTransition>
-              <Suspense fallback={<LoadingFallback />}>
-                <Experience />
               </Suspense>
             </PageTransition>
           }

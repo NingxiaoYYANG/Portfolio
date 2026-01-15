@@ -10,7 +10,7 @@ import { useRecruiterMode } from '../contexts/RecruiterModeContext';
 import PathSelector from '../components/PathSelector';
 import About from './About';
 import Projects from './Projects';
-import Experience from './Experience';
+import Timeline from '../components/Timeline';
 import Contact from './Contact';
 import Game from './Game';
 
@@ -423,11 +423,11 @@ function Home() {
       <section id="about" className="scroll-mt-28 border-t border-gray-800/60 bg-gradient-to-b from-gray-900 to-gray-950">
         <About />
       </section>
+      <section id="experience" className="scroll-mt-28 border-t border-gray-800/60 bg-gray-900">
+        <Timeline />
+      </section>
       <section id="projects" className="scroll-mt-28 border-t border-gray-800/60 bg-gray-950">
         <Projects />
-      </section>
-      <section id="experience" className="scroll-mt-28 border-t border-gray-800/60 bg-gray-900">
-        <Experience />
       </section>
       <section id="contact" className="scroll-mt-28 border-t border-gray-800/60 bg-gray-950">
         <Contact />
