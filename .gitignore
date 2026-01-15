@@ -25,6 +25,9 @@ __pycache__/
 *.swo
 *~
 
+# Editor / tooling
+.cursor/
+
 # OS
 .DS_Store
 Thumbs.db
