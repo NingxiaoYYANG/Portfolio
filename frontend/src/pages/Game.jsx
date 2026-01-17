@@ -73,13 +73,17 @@ class TopdownShootScene extends Phaser.Scene {
 
     this.pointer = this.input.activePointer;
 
-    // Touch controls for mobile
+    // Touch controls for mobile (only for touch events, not mouse)
     this.touchMovePointer = null;
     this.touchShootPointer = null;
     this.input.addPointer(1); // Add second pointer for multi-touch
     
-    // Track touch positions
+    // Track touch positions (only for touch events, not mouse)
     this.input.on('pointerdown', (pointer) => {
+      // Only handle touch events, ignore mouse events
+      const isTouch = pointer.event && (pointer.event.pointerType === 'touch' || pointer.event.touches);
+      if (!isTouch) return;
+      
       const touchX = pointer.x;
       const screenWidth = this.scale.width;
       
@@ -92,6 +96,10 @@ class TopdownShootScene extends Phaser.Scene {
     });
     
     this.input.on('pointerup', (pointer) => {
+      // Only handle touch events
+      const isTouch = pointer.event && (pointer.event.pointerType === 'touch' || pointer.event.touches);
+      if (!isTouch) return;
+      
       if (this.touchMovePointer === pointer) {
         this.touchMovePointer = null;
       }
@@ -101,6 +109,10 @@ class TopdownShootScene extends Phaser.Scene {
     });
     
     this.input.on('pointermove', (pointer) => {
+      // Only handle touch events
+      const isTouch = pointer.event && (pointer.event.pointerType === 'touch' || pointer.event.touches);
+      if (!isTouch) return;
+      
       if (this.touchMovePointer === pointer || this.touchShootPointer === pointer) {
         // Update pointer position
         pointer.updateWorldPoint(this.cameras.main);
@@ -196,8 +208,13 @@ class TopdownShootScene extends Phaser.Scene {
     this.player.rotation = angle;
 
     // Shoot (hold mouse or touch on right side)
-    const isShooting = (this.pointer.isDown && !this.touchMovePointer) || 
-                       (this.touchShootPointer && this.touchShootPointer.isDown);
+    // On desktop: mouse always shoots (regardless of position)
+    // On mobile: only touch on right side shoots
+    const isMouseDown = this.pointer.isDown && 
+                       (!this.pointer.event || this.pointer.event.pointerType !== 'touch');
+    const isTouchShooting = this.touchShootPointer && this.touchShootPointer.isDown;
+    const isShooting = isMouseDown || isTouchShooting;
+    
     if (isShooting && time - this.lastShotAt > this.shotCooldownMs) {
       this.lastShotAt = time;
       this._shoot(aimPointer);
