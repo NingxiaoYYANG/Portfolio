@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useRecruiterMode } from '../contexts/RecruiterModeContext';
+import { resolvePublicPath } from '../utils/paths';
 
-const photos = [
+const photosRaw = [
   {
     id: 'graduate',
     src: '/graduate.jpg',
@@ -28,6 +29,12 @@ const photos = [
     caption: 'SkillVerse web3 & AI hackathon • Demonstration',
   },
 ];
+
+// Resolve paths with base URL for GitHub Pages
+const photos = photosRaw.map(photo => ({
+  ...photo,
+  src: resolvePublicPath(photo.src),
+}));
 
 // 基于 framer-motion 官方示例的水平滑动 variants
 const variants = {

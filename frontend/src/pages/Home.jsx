@@ -8,6 +8,7 @@ import Card3D, { useMousePosition } from '../components/Card3D';
 import { useEffect, useState, useRef } from 'react';
 import { useRecruiterMode } from '../contexts/RecruiterModeContext';
 import PathSelector from '../components/PathSelector';
+import { resolvePublicPath } from '../utils/paths';
 import About from './About';
 import Projects from './Projects';
 import Timeline from '../components/Timeline';
@@ -148,7 +149,7 @@ function Home() {
               <div className="absolute top-0 right-0 w-1/2 h-1/2 bg-gradient-to-bl from-gray-950/70 via-transparent to-transparent z-20 pointer-events-none" />
               
               <img
-                src="/portrait.jpg"
+                src={resolvePublicPath('/portrait.jpg')}
                 alt="Ningxiao Yang"
                 className="w-full h-full object-cover object-center object-[center_top] scale-110 select-none pointer-events-none relative z-10"
                 style={{
@@ -213,7 +214,7 @@ function Home() {
           <div className="relative w-full h-full rounded-3xl overflow-hidden">
             {/* 头像图片（裁剪更紧：胸口以上，脸占画面更大） */}
             <img
-              src="/portrait.jpg"
+              src={resolvePublicPath('/portrait.jpg')}
               alt="Ningxiao Yang"
               className="w-full h-full object-cover object-center object-[center_top] scale-110 select-none pointer-events-none relative z-10"
               style={{

@@ -1,6 +1,7 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
+import { resolvePublicPath } from '../utils/paths';
 
 export default function ProjectModal({ project, isOpen, onClose }) {
   // Early return if project is null - must be before any project property access
@@ -172,8 +173,8 @@ export default function ProjectModal({ project, isOpen, onClose }) {
                     <div className="relative w-full flex items-center justify-center min-h-[300px] max-h-[500px]">
                       {allImages[currentImageIndex].type === 'video' ? (
                         <video
-                          src={allImages[currentImageIndex].src}
-                          poster={allImages[currentImageIndex].poster}
+                          src={resolvePublicPath(allImages[currentImageIndex].src)}
+                          poster={allImages[currentImageIndex].poster ? resolvePublicPath(allImages[currentImageIndex].poster) : undefined}
                           className="w-full h-auto max-h-[500px] object-contain"
                           controls
                           autoPlay
@@ -182,7 +183,7 @@ export default function ProjectModal({ project, isOpen, onClose }) {
                         />
                       ) : (
                         <img
-                          src={allImages[currentImageIndex].src}
+                          src={resolvePublicPath(allImages[currentImageIndex].src)}
                           alt={`${project.title} - Image ${currentImageIndex + 1}`}
                           className="w-full h-auto max-h-[500px] object-contain mx-auto"
                           style={{ display: 'block' }}
@@ -239,7 +240,7 @@ export default function ProjectModal({ project, isOpen, onClose }) {
                               {img.type === 'video' ? (
                                 <div className="w-full h-full bg-gray-700 flex items-center justify-center relative">
                                   <img
-                                    src={img.poster || img.src}
+                                    src={resolvePublicPath(img.poster || img.src)}
                                     alt={`Thumbnail ${idx + 1}`}
                                     className="w-full h-full object-cover opacity-70"
                                   />
@@ -249,7 +250,7 @@ export default function ProjectModal({ project, isOpen, onClose }) {
                                 </div>
                               ) : (
                                 <img
-                                  src={img.src}
+                                  src={resolvePublicPath(img.src)}
                                   alt={`Thumbnail ${idx + 1}`}
                                   className="w-full h-full object-cover"
                                 />
@@ -339,7 +340,7 @@ export default function ProjectModal({ project, isOpen, onClose }) {
                     )}
                     {caseStudyUrl && (
                       <motion.a
-                        href={caseStudyUrl}
+                        href={caseStudyUrl.startsWith('http') ? caseStudyUrl : resolvePublicPath(caseStudyUrl)}
                         target="_blank"
                         rel="noopener noreferrer"
                         onClick={handleButtonClick}

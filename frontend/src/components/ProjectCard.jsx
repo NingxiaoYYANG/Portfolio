@@ -2,6 +2,7 @@ import { motion } from 'framer-motion';
 import { useState } from 'react';
 import Card3D from './Card3D';
 import { useRecruiterMode } from '../contexts/RecruiterModeContext';
+import { resolvePublicPath } from '../utils/paths';
 
 // Category-based default icons mapping
 const categoryIcons = {
@@ -78,15 +79,15 @@ export default function ProjectCard({ project, index, onCardClick }) {
             {cover ? (
               coverType === 'video' ? (
                 <video
-                  src={cover}
-                  poster={project.videoPoster}
+                  src={resolvePublicPath(cover)}
+                  poster={project.videoPoster ? resolvePublicPath(project.videoPoster) : undefined}
                   className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.02]"
                   muted
                   loop
                 />
               ) : (
                 <img
-                  src={cover}
+                  src={resolvePublicPath(cover)}
                   alt={project.title}
                   className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.02]"
                 />
@@ -126,7 +127,7 @@ export default function ProjectCard({ project, index, onCardClick }) {
                 </motion.a>
               ) : caseStudyUrl ? (
                 <motion.a
-                  href={caseStudyUrl}
+                  href={caseStudyUrl.startsWith('http') ? caseStudyUrl : resolvePublicPath(caseStudyUrl)}
                   target="_blank"
                   rel="noopener noreferrer"
                   onClick={handleButtonClick}

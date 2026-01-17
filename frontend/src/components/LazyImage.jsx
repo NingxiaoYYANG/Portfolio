@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
+import { resolvePublicPath } from '../utils/paths';
 
 export default function LazyImage({ src, alt, className = '' }) {
   const [loaded, setLoaded] = useState(false);
@@ -16,7 +17,7 @@ export default function LazyImage({ src, alt, className = '' }) {
         </div>
       ) : (
         <motion.img
-          src={src}
+          src={resolvePublicPath(src)}
           alt={alt}
           onLoad={() => setLoaded(true)}
           onError={() => setError(true)}

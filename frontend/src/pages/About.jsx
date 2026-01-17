@@ -3,6 +3,7 @@ import SkillTree from '../components/SkillTree';
 import Achievements from '../components/Achievements';
 import PhotoCarousel from '../components/PhotoCarousel';
 import { useRecruiterMode } from '../contexts/RecruiterModeContext';
+import { resolvePublicPath } from '../utils/paths';
 
 export default function About() {
   const { recruiterMode, scrollToSection } = useRecruiterMode();
@@ -84,7 +85,7 @@ export default function About() {
                     rel="noopener noreferrer"
                     className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-gray-900/60 border border-gray-600 text-gray-100 hover:border-blue-500 hover:text-white hover:bg-gray-900 transition-colors text-sm font-medium"
                   >
-                    <img src="/icons/linkedin.png" alt="LinkedIn" className="w-5 h-5 rounded-full object-cover" />
+                    <img src={resolvePublicPath('/icons/linkedin.png')} alt="LinkedIn" className="w-5 h-5 rounded-full object-cover" />
                     <span>LinkedIn</span>
                     <span aria-hidden="true" className="text-xs">
                       ↗
@@ -96,18 +97,18 @@ export default function About() {
                     rel="noopener noreferrer"
                     className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-gray-900/60 border border-gray-600 text-gray-100 hover:border-blue-500 hover:text-white hover:bg-gray-900 transition-colors text-sm font-medium"
                   >
-                    <img src="/icons/github.png" alt="GitHub" className="w-5 h-5 rounded-full object-cover" />
+                    <img src={resolvePublicPath('/icons/github.png')} alt="GitHub" className="w-5 h-5 rounded-full object-cover" />
                     <span>GitHub</span>
                     <span aria-hidden="true" className="text-xs">
                       ↗
                     </span>
                   </a>
                   <a
-                    href="/Resume_090126.pdf"
+                    href={resolvePublicPath('/Resume_090126.pdf')}
                     download="Resume_090126.pdf"
                     className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-gray-900/40 border border-dashed border-gray-600 text-gray-300 hover:border-blue-500 hover:text-white hover:bg-gray-900/60 transition-colors text-sm font-medium"
                   >
-                    <img src="/icons/resume.png" alt="Resume" className="w-5 h-5 rounded-full object-cover" />
+                    <img src={resolvePublicPath('/icons/resume.png')} alt="Resume" className="w-5 h-5 rounded-full object-cover" />
                     <span>Resume (PDF)</span>
                     <span aria-hidden="true" className="text-xs">
                       ↗
@@ -143,7 +144,7 @@ export default function About() {
                       rel="noopener noreferrer"
                       className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-gray-900/60 border border-gray-600 text-gray-100 hover:border-blue-500 hover:text-white hover:bg-gray-900 transition-colors text-sm font-medium"
                     >
-                      <img src="/icons/linkedin.png" alt="LinkedIn" className="w-5 h-5 rounded-full object-cover" />
+                      <img src={resolvePublicPath('/icons/linkedin.png')} alt="LinkedIn" className="w-5 h-5 rounded-full object-cover" />
                       <span>LinkedIn</span>
                       <span aria-hidden="true" className="text-xs">
                         ↗
@@ -155,18 +156,18 @@ export default function About() {
                       rel="noopener noreferrer"
                       className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-gray-900/60 border border-gray-600 text-gray-100 hover:border-blue-500 hover:text-white hover:bg-gray-900 transition-colors text-sm font-medium"
                     >
-                      <img src="/icons/github.png" alt="GitHub" className="w-5 h-5 rounded-full object-cover" />
+                      <img src={resolvePublicPath('/icons/github.png')} alt="GitHub" className="w-5 h-5 rounded-full object-cover" />
                       <span>GitHub</span>
                       <span aria-hidden="true" className="text-xs">
                         ↗
                       </span>
                     </a>
                     <a
-                      href="/Resume_090126.pdf"
+                      href={resolvePublicPath('/Resume_090126.pdf')}
                       download="Resume_090126.pdf"
                       className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-gray-900/40 border border-dashed border-gray-600 text-gray-300 hover:border-blue-500 hover:text-white hover:bg-gray-900/60 transition-colors text-sm font-medium"
                     >
-                      <img src="/icons/resume.png" alt="Resume" className="w-5 h-5 rounded-full object-cover" />
+                      <img src={resolvePublicPath('/icons/resume.png')} alt="Resume" className="w-5 h-5 rounded-full object-cover" />
                       <span>Resume (PDF)</span>
                       <span aria-hidden="true" className="text-xs">
                         ↗
