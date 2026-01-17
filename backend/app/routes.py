@@ -169,24 +169,43 @@ def contact():
                 'message': f'{field} is required'
             }), 400
     
-    # Send email if mail is configured
-    if current_app.config.get('MAIL_USERNAME'):
-        try:
-            msg = Message(
-                subject=f"Portfolio Contact: {data['name']}",
-                recipients=[current_app.config['MAIL_DEFAULT_SENDER']],
-                body=f"Name: {data['name']}\nEmail: {data['email']}\nMessage: {data['message']}",
-                reply_to=data['email']
-            )
-            mail.send(msg)
-        except Exception as e:
-            print(f"Error sending email: {e}")
-            # Still return success to user, but log the error
+    # Check if mail is configured
+    mail_username = current_app.config.get('MAIL_USERNAME')
+    mail_password = current_app.config.get('MAIL_PASSWORD')
+    mail_sender = current_app.config.get('MAIL_DEFAULT_SENDER')
     
-    return jsonify({
-        'success': True,
-        'message': 'Thank you for your message! I will get back to you soon.'
-    })
+    if not mail_username or not mail_password or not mail_sender:
+        # Mail not configured - return error
+        return jsonify({
+            'success': False,
+            'message': 'Email service is not configured. Please contact the administrator.'
+        }), 503
+    
+    # Send email
+    try:
+        msg = Message(
+            subject=f"Portfolio Contact: {data['name']}",
+            recipients=[mail_sender],
+            body=f"Name: {data['name']}\nEmail: {data['email']}\nMessage: {data['message']}",
+            reply_to=data['email']
+        )
+        mail.send(msg)
+        return jsonify({
+            'success': True,
+            'message': 'Thank you for your message! I will get back to you soon.'
+        })
+    except Exception as e:
+        # Log the error for debugging
+        import traceback
+        error_msg = str(e)
+        traceback.print_exc()
+        print(f"Error sending email: {error_msg}")
+        
+        # Return error to user
+        return jsonify({
+            'success': False,
+            'message': f'Failed to send email: {error_msg}. Please try again later or contact directly.'
+        }), 500
 
 @bp.route('/health', methods=['GET'])
 def health():

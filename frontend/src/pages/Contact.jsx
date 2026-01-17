@@ -25,12 +25,20 @@ export default function Contact() {
 
     try {
       const response = await submitContact(formData);
-      setStatus({ type: 'success', message: response.message });
-      setFormData({ name: '', email: '', message: '' });
+      if (response.success === false) {
+        setStatus({
+          type: 'error',
+          message: response.message || 'Failed to send message. Please try again.',
+        });
+      } else {
+        setStatus({ type: 'success', message: response.message || 'Thank you for your message! I will get back to you soon.' });
+        setFormData({ name: '', email: '', message: '' });
+      }
     } catch (error) {
+      const errorMessage = error.response?.data?.message || error.message || 'Failed to send message. Please try again.';
       setStatus({
         type: 'error',
-        message: error.response?.data?.message || 'Failed to send message. Please try again.',
+        message: errorMessage,
       });
     } finally {
       setLoading(false);

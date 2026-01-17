@@ -105,6 +105,42 @@ Portfolio/
 - `VITE_API_BASE_URL` - Backend API base URL (default: http://localhost:5000/api)
 
 ### Backend
+
+Create a `.env` file in the `backend/` directory with the following variables:
+
+#### Required for Email Functionality
+```env
+# Mail Configuration
+MAIL_SERVER=smtp.gmail.com
+MAIL_PORT=587
+MAIL_USE_TLS=true
+MAIL_USERNAME=your-email@gmail.com
+MAIL_PASSWORD=your-app-password-here
+MAIL_DEFAULT_SENDER=your-email@gmail.com
+```
+
+**Setting up Gmail for sending emails:**
+
+1. Enable 2-Step Verification on your Google Account:
+   - Go to [Google Account Security](https://myaccount.google.com/security)
+   - Enable "2-Step Verification"
+
+2. Generate an App Password:
+   - Go to [App Passwords](https://myaccount.google.com/apppasswords)
+   - Select "Mail" and your device
+   - Copy the generated 16-character password
+   - Use this password (not your regular Gmail password) for `MAIL_PASSWORD`
+
+3. Use your Gmail address for both `MAIL_USERNAME` and `MAIL_DEFAULT_SENDER`
+
+**For other email providers:**
+- **Outlook/Hotmail**: `MAIL_SERVER=smtp-mail.outlook.com`, `MAIL_PORT=587`
+- **Yahoo**: `MAIL_SERVER=smtp.mail.yahoo.com`, `MAIL_PORT=587`
+- **Custom SMTP**: Use your provider's SMTP settings
+
+#### Optional
+- `SECRET_KEY` - Flask secret key (default: auto-generated dev key)
+- `CORS_ORIGINS` - Comma-separated list of allowed origins (default: *)
 - `FLASK_ENV` - Flask environment (development/production)
 - `FLASK_DEBUG` - Enable debug mode (true/false)
 

@@ -73,21 +73,75 @@ class TopdownShootScene extends Phaser.Scene {
 
     this.pointer = this.input.activePointer;
 
+    // Touch controls for mobile
+    this.touchMovePointer = null;
+    this.touchShootPointer = null;
+    this.input.addPointer(1); // Add second pointer for multi-touch
+    
+    // Track touch positions
+    this.input.on('pointerdown', (pointer) => {
+      const touchX = pointer.x;
+      const screenWidth = this.scale.width;
+      
+      // Left half of screen = movement, right half = shooting
+      if (touchX < screenWidth / 2) {
+        this.touchMovePointer = pointer;
+      } else {
+        this.touchShootPointer = pointer;
+      }
+    });
+    
+    this.input.on('pointerup', (pointer) => {
+      if (this.touchMovePointer === pointer) {
+        this.touchMovePointer = null;
+      }
+      if (this.touchShootPointer === pointer) {
+        this.touchShootPointer = null;
+      }
+    });
+    
+    this.input.on('pointermove', (pointer) => {
+      if (this.touchMovePointer === pointer || this.touchShootPointer === pointer) {
+        // Update pointer position
+        pointer.updateWorldPoint(this.cameras.main);
+      }
+    });
+
     // Bullets
     this.bullets = this.add.group();
     this.lastShotAt = 0;
     this.bulletSpeed = 650;
 
-    // Targets (4 corners)
+    // Targets - initialize with random positions within screen bounds
     const pad = 120;
+    const minX = pad;
+    const maxX = width - pad;
+    const minY = pad;
+    const maxY = height - pad;
+    
+    // Create targets with random starting positions
     const targets = [
-      { id: 'target1', x: pad, y: pad },
-      { id: 'target2', x: width - pad, y: pad },
-      { id: 'target3', x: pad, y: height - pad },
-      { id: 'target4', x: width - pad, y: height - pad },
+      { id: 'target1', x: Phaser.Math.Between(minX, maxX), y: Phaser.Math.Between(minY, maxY) },
+      { id: 'target2', x: Phaser.Math.Between(minX, maxX), y: Phaser.Math.Between(minY, maxY) },
+      { id: 'target3', x: Phaser.Math.Between(minX, maxX), y: Phaser.Math.Between(minY, maxY) },
+      { id: 'target4', x: Phaser.Math.Between(minX, maxX), y: Phaser.Math.Between(minY, maxY) },
     ];
 
     this.targets = targets.map((t) => this._createTarget(t.id, t.x, t.y));
+    
+    // Initialize random movement for each target
+    this.targets.forEach((target) => {
+      if (!target.unlocked) {
+        // Random velocity
+        target.vx = Phaser.Math.Between(-50, 50);
+        target.vy = Phaser.Math.Between(-50, 50);
+        // Movement boundaries
+        target.minX = pad;
+        target.maxX = width - pad;
+        target.minY = pad;
+        target.maxY = height - pad;
+      }
+    });
 
     // Apply initial unlocks (hide already-unlocked)
     Object.entries(this.initialUnlocks || {}).forEach(([id, unlocked]) => {
@@ -105,31 +159,82 @@ class TopdownShootScene extends Phaser.Scene {
   update(time, delta) {
     const { width, height } = this.scale;
 
-    // Move
+    // Move - keyboard or touch
     const speed = 280;
     let vx = 0;
     let vy = 0;
+    
+    // Keyboard controls
     if (this.cursors.left.isDown) vx -= 1;
     if (this.cursors.right.isDown) vx += 1;
     if (this.cursors.up.isDown) vy -= 1;
     if (this.cursors.down.isDown) vy += 1;
+    
+    // Touch movement controls (left side of screen)
+    if (this.touchMovePointer && this.touchMovePointer.isDown) {
+      const dx = this.touchMovePointer.worldX - this.player.x;
+      const dy = this.touchMovePointer.worldY - this.player.y;
+      const dist = Math.hypot(dx, dy);
+      if (dist > 10) {
+        // Move towards touch point
+        vx = dx / dist;
+        vy = dy / dist;
+      }
+    }
+    
     const len = Math.hypot(vx, vy) || 1;
     vx = (vx / len) * speed * (delta / 1000);
     vy = (vy / len) * speed * (delta / 1000);
     this.player.x = Phaser.Math.Clamp(this.player.x + vx, 20, width - 20);
     this.player.y = Phaser.Math.Clamp(this.player.y + vy, 20, height - 20);
 
-    // Aim
-    const dx = this.pointer.worldX - this.player.x;
-    const dy = this.pointer.worldY - this.player.y;
+    // Aim - use pointer or touch shoot pointer
+    const aimPointer = this.touchShootPointer || this.pointer;
+    const dx = aimPointer.worldX - this.player.x;
+    const dy = aimPointer.worldY - this.player.y;
     const angle = Math.atan2(dy, dx) + Math.PI / 2;
     this.player.rotation = angle;
 
-    // Shoot (hold mouse)
-    if (this.pointer.isDown && time - this.lastShotAt > this.shotCooldownMs) {
+    // Shoot (hold mouse or touch on right side)
+    const isShooting = (this.pointer.isDown && !this.touchMovePointer) || 
+                       (this.touchShootPointer && this.touchShootPointer.isDown);
+    if (isShooting && time - this.lastShotAt > this.shotCooldownMs) {
       this.lastShotAt = time;
-      this._shoot();
+      this._shoot(aimPointer);
     }
+    
+    // Update target positions (random movement)
+    this.targets.forEach((target) => {
+      if (target.unlocked || !target.visible) return;
+      
+      // Move target
+      target.x += target.vx * (delta / 1000);
+      target.y += target.vy * (delta / 1000);
+      
+      // Boundary checking and bounce
+      if (target.x <= target.minX || target.x >= target.maxX) {
+        target.vx = -target.vx;
+        target.x = Phaser.Math.Clamp(target.x, target.minX, target.maxX);
+        // Randomize velocity on bounce
+        target.vy = Phaser.Math.Between(-50, 50);
+      }
+      if (target.y <= target.minY || target.y >= target.maxY) {
+        target.vy = -target.vy;
+        target.y = Phaser.Math.Clamp(target.y, target.minY, target.maxY);
+        // Randomize velocity on bounce
+        target.vx = Phaser.Math.Between(-50, 50);
+      }
+      
+      // Update visual positions
+      target.body.setPosition(target.x, target.y);
+      target.outline.setPosition(target.x, target.y);
+      target.label.setPosition(target.x, target.y + 42);
+      target.barBg.setPosition(target.x, target.y - 46);
+      target.barFill.setPosition(target.x - target.barFill.width / 2, target.y - 46);
+      
+      // Update hit rectangle
+      target.hitRect.setPosition(target.x - 27, target.y - 27);
+    });
 
     // Update bullets
     const toRemove = [];
@@ -164,9 +269,10 @@ class TopdownShootScene extends Phaser.Scene {
     });
   }
 
-  _shoot() {
+  _shoot(pointer = null) {
     if (this.bullets.getLength() > this.maxBullets) return;
-    const angle = Phaser.Math.Angle.Between(this.player.x, this.player.y, this.pointer.worldX, this.pointer.worldY);
+    const aimPointer = pointer || this.pointer;
+    const angle = Phaser.Math.Angle.Between(this.player.x, this.player.y, aimPointer.worldX, aimPointer.worldY);
     const vx = Math.cos(angle) * this.bulletSpeed;
     const vy = Math.sin(angle) * this.bulletSpeed;
 
@@ -217,6 +323,23 @@ class TopdownShootScene extends Phaser.Scene {
     t.visible = true;
     t.hp = t.maxHp;
     [t.body, t.outline, t.label, t.barBg, t.barFill].forEach((o) => o.setVisible(true));
+    
+    // Reset to random position and velocity
+    const { width, height } = this.scale;
+    const pad = 120;
+    t.x = Phaser.Math.Between(pad, width - pad);
+    t.y = Phaser.Math.Between(pad, height - pad);
+    t.vx = Phaser.Math.Between(-50, 50);
+    t.vy = Phaser.Math.Between(-50, 50);
+    
+    // Update visual positions
+    t.body.setPosition(t.x, t.y);
+    t.outline.setPosition(t.x, t.y);
+    t.label.setPosition(t.x, t.y + 42);
+    t.barBg.setPosition(t.x, t.y - 46);
+    t.barFill.setPosition(t.x - t.barFill.width / 2, t.y - 46);
+    t.hitRect.setPosition(t.x - 27, t.y - 27);
+    
     this._updateBar(t);
   }
 
@@ -351,7 +474,8 @@ export default function Game({ onSkip }) {
             Shoot the 4 targets to unlock info cards. Progress is saved locally.
           </p>
           <p className="text-gray-500 text-sm mt-2">
-            Controls: WASD move · Mouse aim · Hold click to shoot
+            Controls: WASD move · Mouse aim · Hold click to shoot<br />
+            Mobile: Touch left side to move · Touch right side to aim & shoot
           </p>
         </div>
       </div>
