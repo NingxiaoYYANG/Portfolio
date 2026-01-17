@@ -11,7 +11,7 @@ const photos = [
   },
   {
     id: 'hackathon',
-    src: '/hackthon.jpg',
+    src: '/SkillVerse/award.jpg',
     alt: 'Winning an Aspiring Entrepreneur Award at a Web3 & AI hackathon',
     caption: 'Web3 & AI Hackathon • Aspiring Entrepreneur Award',
   },
@@ -23,7 +23,7 @@ const photos = [
   },
   {
     id: 'hackthon_demo',
-    src: '/hackthon_demo.jpg',
+    src: '/SkillVerse/presentation.jpg',
     alt: 'Demonstrating the SkillVerse web3 & AI hackathon project',
     caption: 'SkillVerse web3 & AI hackathon • Demonstration',
   },
