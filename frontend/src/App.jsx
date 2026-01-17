@@ -85,7 +85,7 @@ function AppRoutes() {
 function App() {
   return (
     <RecruiterModeProvider>
-      <Router>
+      <Router basename="/Portfolio">
         <Layout>
           <AppRoutes />
         </Layout>
