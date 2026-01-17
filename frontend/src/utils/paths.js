@@ -19,11 +19,14 @@ export function resolvePublicPath(path) {
     return path;
   }
   
-  // Remove leading slash if present (we'll add base URL)
-  const cleanPath = path.startsWith('/') ? path.slice(1) : path;
+  // Get base URL (ensure it ends with /)
+  let baseUrl = getBaseUrl();
+  if (!baseUrl.endsWith('/')) {
+    baseUrl += '/';
+  }
   
-  // Get base URL and remove trailing slash if present
-  const baseUrl = getBaseUrl().replace(/\/$/, '');
+  // Remove leading slash from path if present
+  const cleanPath = path.startsWith('/') ? path.slice(1) : path;
   
   // Return combined path
   return `${baseUrl}${cleanPath}`;
