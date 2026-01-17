@@ -166,6 +166,12 @@ class TopdownShootScene extends Phaser.Scene {
     this.emitter.on('reset', () => {
       this.targets.forEach((t) => this._resetTarget(t));
     });
+    
+    // Clear touch pointers hook (when modal closes)
+    this.emitter.on('clearTouchPointers', () => {
+      this.touchMovePointer = null;
+      this.touchShootPointer = null;
+    });
   }
 
   update(time, delta) {
@@ -520,7 +526,11 @@ export default function Game({ onSkip }) {
       <Modal
         isOpen={!!card}
         title={card?.title}
-        onClose={() => setOpenedCardId(null)}
+        onClose={() => {
+          setOpenedCardId(null);
+          // Clear touch pointers when modal closes to allow user to continue playing
+          emitter.emit('clearTouchPointers');
+        }}
       >
         {card && (
           <div className="space-y-3">
