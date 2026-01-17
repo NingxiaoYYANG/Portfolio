@@ -36,7 +36,7 @@ PROJECTS = [
         'subtitle': 'Decentralised Certification Platform',
         'category': 'Hackathon',
         'year': '2023',
-        'cover': '/SkillVerse/award.jpg',
+        'cover': '/SkillVerse/TitlePage.png',
         'coverType': 'image',
         'description': 'AI-powered decentralised certification platform with NFT credentials. Built and demoed under tight deadline, awarded Aspiring Entrepreneur and Best Presentation.',
         'techTags': ['React', 'Solidity', 'IPFS', 'OpenAI API'],
@@ -46,12 +46,12 @@ PROJECTS = [
         'demoUrl': '',
         'caseStudyUrl': '/SkillVerse/SkillVerse Demo Video.mp4',
         'screenshots': [
-            '/SkillVerse/TitlePage.png',
             '/SkillVerse/Selection.png',
-            '/SkillVerse/SkillTree.png',
-            '/SkillVerse/CollectNFT.png',
-            '/SkillVerse/CompleteAll.png',
             '/SkillVerse/Loading.png',
+            '/SkillVerse/SkillTree.png',
+             '/SkillVerse/CompleteAll.png',
+            '/SkillVerse/CollectNFT.png',
+            '/SkillVerse/award.jpg',
         ],
         'github_url': 'https://github.com/NingxiaoYYANG/Skillverse',  # Backward compatibility
         'demo_url': '',  # Backward compatibility
@@ -98,9 +98,9 @@ PROJECTS = [
         'demoUrl': 'https://aacsi.org.au/',
         'caseStudyUrl': '',
         'screenshots': [
-            '/AACSI/EventsPage.png',
-            '/AACSI/ProfilePage.png',
             '/AACSI/SignUpPage.png',
+            '/AACSI/ProfilePage.png',
+            '/AACSI/EventsPage.png',
         ],
         'github_url': 'https://github.com/NingxiaoYYANG/AACSI_Project',  # Backward compatibility
         'demo_url': 'https://aacsi.org.au/',  # Backward compatibility
@@ -113,7 +113,7 @@ PROJECTS = [
         'subtitle': 'Jo-en Media Website',
         'category': 'Web',
         'year': '2024',
-        'cover': '/JoEnMedia/HomePage.png',
+        'cover': '/JoEnMedia/WorkPage.png',
         'coverType': 'image',
         'description': 'Production website built with React + Flask and containerised with Docker. Delivered enquiry-to-email workflow and deployed to production with client handover.',
         'techTags': ['React', 'Flask', 'Docker'],
@@ -123,8 +123,8 @@ PROJECTS = [
         'demoUrl': 'https://jo-enmedia.com',
         'caseStudyUrl': '/JoEnMedia/joen_demo.mp4',
         'screenshots': [
+            '/JoEnMedia/HomePage.png',
             '/JoEnMedia/ContactUsPage.png',
-            '/JoEnMedia/WorkPage.png',
         ],
         'github_url': 'https://github.com/NingxiaoYYANG/Jo-enmedia',  # Backward compatibility
         'demo_url': 'https://jo-enmedia.com',  # Backward compatibility

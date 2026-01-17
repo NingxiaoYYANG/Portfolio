@@ -1,9 +1,13 @@
 import { AnimatePresence, motion } from 'framer-motion';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 
 export default function ProjectModal({ project, isOpen, onClose }) {
+  // Early return if project is null - must be before any project property access
+  if (!project) return null;
+
   const modalRef = useRef(null);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   // #region agent log
   useEffect(() => {
@@ -36,7 +40,52 @@ export default function ProjectModal({ project, isOpen, onClose }) {
   }, [isOpen]);
   // #endregion
 
-  if (!project) return null;
+  // Collect all images (cover + screenshots)
+  const cover = project.cover || project.image;
+  const coverType = project.coverType || 'image';
+  const screenshots = project.screenshots || [];
+  
+  // Combine cover and screenshots into a single array
+  const allImages = [];
+  if (cover) {
+    allImages.push({ src: cover, type: coverType, poster: project.videoPoster });
+  }
+  screenshots.forEach(screenshot => {
+    allImages.push({ src: screenshot, type: 'image' });
+  });
+
+  // Reset to first image when modal opens or project changes
+  useEffect(() => {
+    if (isOpen) {
+      setCurrentImageIndex(0);
+    }
+  }, [isOpen, project?.id]);
+
+  // Keyboard navigation
+  useEffect(() => {
+    if (!isOpen || allImages.length <= 1) return;
+
+    const handleKeyDown = (e) => {
+      if (e.key === 'ArrowLeft') {
+        e.preventDefault();
+        setCurrentImageIndex((prev) => (prev > 0 ? prev - 1 : allImages.length - 1));
+      } else if (e.key === 'ArrowRight') {
+        e.preventDefault();
+        setCurrentImageIndex((prev) => (prev < allImages.length - 1 ? prev + 1 : 0));
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, allImages.length]);
+
+  const goToPrevious = () => {
+    setCurrentImageIndex((prev) => (prev > 0 ? prev - 1 : allImages.length - 1));
+  };
+
+  const goToNext = () => {
+    setCurrentImageIndex((prev) => (prev < allImages.length - 1 ? prev + 1 : 0));
+  };
 
   // Get all tags
   const highlightTags = project.highlightTags || [];
@@ -50,8 +99,6 @@ export default function ProjectModal({ project, isOpen, onClose }) {
   const demoUrl = project.demoUrl || project.demo_url;
   const codeUrl = project.codeUrl || project.github_url;
   const caseStudyUrl = project.caseStudyUrl;
-  const cover = project.cover || project.image;
-  const coverType = project.coverType || 'image';
 
   const handleButtonClick = (e) => {
     e.stopPropagation();
@@ -118,26 +165,99 @@ export default function ProjectModal({ project, isOpen, onClose }) {
 
               {/* Scrollable Content */}
               <div className="overflow-y-auto flex-1 px-6 py-6 space-y-6">
-                {/* Cover Image/Media */}
-                {cover && (
-                  <div className="w-full rounded-xl overflow-hidden bg-gray-800/50 border border-gray-700/30 flex items-center justify-center">
-                    {coverType === 'video' ? (
-                      <video
-                        src={cover}
-                        poster={project.videoPoster}
-                        className="w-full h-auto max-h-[500px] object-contain"
-                        controls
-                        autoPlay
-                        loop
-                        muted
-                      />
-                    ) : (
-                      <img
-                        src={cover}
-                        alt={project.title}
-                        className="w-full h-auto max-h-[500px] object-contain mx-auto"
-                        style={{ display: 'block' }}
-                      />
+                {/* Image Carousel */}
+                {allImages.length > 0 && (
+                  <div className="relative w-full rounded-xl overflow-hidden bg-gray-800/50 border border-gray-700/30">
+                    {/* Main Image/Video Display */}
+                    <div className="relative w-full flex items-center justify-center min-h-[300px] max-h-[500px]">
+                      {allImages[currentImageIndex].type === 'video' ? (
+                        <video
+                          src={allImages[currentImageIndex].src}
+                          poster={allImages[currentImageIndex].poster}
+                          className="w-full h-auto max-h-[500px] object-contain"
+                          controls
+                          autoPlay
+                          loop
+                          muted
+                        />
+                      ) : (
+                        <img
+                          src={allImages[currentImageIndex].src}
+                          alt={`${project.title} - Image ${currentImageIndex + 1}`}
+                          className="w-full h-auto max-h-[500px] object-contain mx-auto"
+                          style={{ display: 'block' }}
+                        />
+                      )}
+
+                      {/* Navigation Arrows */}
+                      {allImages.length > 1 && (
+                        <>
+                          <button
+                            onClick={goToPrevious}
+                            className="absolute left-4 top-1/2 -translate-y-1/2 p-3 rounded-full bg-black/50 hover:bg-black/70 backdrop-blur-sm border border-white/20 text-white transition-all hover:scale-110 z-10"
+                            aria-label="Previous image"
+                          >
+                            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                            </svg>
+                          </button>
+                          <button
+                            onClick={goToNext}
+                            className="absolute right-4 top-1/2 -translate-y-1/2 p-3 rounded-full bg-black/50 hover:bg-black/70 backdrop-blur-sm border border-white/20 text-white transition-all hover:scale-110 z-10"
+                            aria-label="Next image"
+                          >
+                            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                            </svg>
+                          </button>
+                        </>
+                      )}
+
+                      {/* Image Counter */}
+                      {allImages.length > 1 && (
+                        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 px-4 py-2 rounded-full bg-black/50 backdrop-blur-sm border border-white/20 text-white text-sm font-medium">
+                          {currentImageIndex + 1} / {allImages.length}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Thumbnail Navigation */}
+                    {allImages.length > 1 && (
+                      <div className="px-4 py-3 bg-gray-800/30 border-t border-gray-700/30">
+                        <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800">
+                          {allImages.map((img, idx) => (
+                            <button
+                              key={idx}
+                              onClick={() => setCurrentImageIndex(idx)}
+                              className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-all ${
+                                idx === currentImageIndex
+                                  ? 'border-blue-500 ring-2 ring-blue-500/50'
+                                  : 'border-gray-600/50 hover:border-gray-500'
+                              }`}
+                              aria-label={`Go to image ${idx + 1}`}
+                            >
+                              {img.type === 'video' ? (
+                                <div className="w-full h-full bg-gray-700 flex items-center justify-center relative">
+                                  <img
+                                    src={img.poster || img.src}
+                                    alt={`Thumbnail ${idx + 1}`}
+                                    className="w-full h-full object-cover opacity-70"
+                                  />
+                                  <svg className="absolute w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M8 5v14l11-7z" />
+                                  </svg>
+                                </div>
+                              ) : (
+                                <img
+                                  src={img.src}
+                                  alt={`Thumbnail ${idx + 1}`}
+                                  className="w-full h-full object-cover"
+                                />
+                              )}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
                     )}
                   </div>
                 )}
@@ -171,28 +291,6 @@ export default function ProjectModal({ project, isOpen, onClose }) {
                   <p className="text-gray-300 leading-relaxed text-base">{project.description}</p>
                 </div>
 
-                {/* Screenshots Gallery - Horizontal Scrollable */}
-                {project.screenshots && project.screenshots.length > 0 && (
-                  <div>
-                    <h3 className="text-sm font-semibold text-gray-200 mb-4 uppercase tracking-wide">Screenshots</h3>
-                    <div className="overflow-x-auto pb-4 -mx-2 px-2 scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800">
-                      <div className="flex gap-4 min-w-max">
-                        {project.screenshots.map((screenshot, idx) => (
-                          <div
-                            key={idx}
-                            className="flex-shrink-0 w-[min(90vw,500px)] rounded-lg overflow-hidden bg-gray-800/50 border border-gray-700/30 hover:border-gray-600/50 transition-colors"
-                          >
-                            <img
-                              src={screenshot}
-                              alt={`${project.title} screenshot ${idx + 1}`}
-                              className="w-full h-auto object-contain"
-                            />
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                )}
 
                 {/* All Tags */}
                 {allTags.length > 0 && (
