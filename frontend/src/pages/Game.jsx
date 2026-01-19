@@ -71,6 +71,14 @@ class TopdownShootScene extends Phaser.Scene {
       right: Phaser.Input.Keyboard.KeyCodes.D,
     });
 
+    // Don't capture WASD keys globally - allow them to be used in input fields
+    this.input.keyboard.removeCapture([
+      Phaser.Input.Keyboard.KeyCodes.W,
+      Phaser.Input.Keyboard.KeyCodes.A,
+      Phaser.Input.Keyboard.KeyCodes.S,
+      Phaser.Input.Keyboard.KeyCodes.D,
+    ]);
+
     this.pointer = this.input.activePointer;
 
     // Touch controls for mobile (only for touch events, not mouse)
@@ -177,16 +185,26 @@ class TopdownShootScene extends Phaser.Scene {
   update(time, delta) {
     const { width, height } = this.scale;
 
+    // Check if user is typing in an input field (don't capture WASD keys)
+    const activeElement = document.activeElement;
+    const isTyping = activeElement && (
+      activeElement.tagName === 'INPUT' ||
+      activeElement.tagName === 'TEXTAREA' ||
+      activeElement.isContentEditable
+    );
+
     // Move - keyboard or touch
     const speed = 280;
     let vx = 0;
     let vy = 0;
     
-    // Keyboard controls
-    if (this.cursors.left.isDown) vx -= 1;
-    if (this.cursors.right.isDown) vx += 1;
-    if (this.cursors.up.isDown) vy -= 1;
-    if (this.cursors.down.isDown) vy += 1;
+    // Keyboard controls (only if not typing in input field)
+    if (!isTyping) {
+      if (this.cursors.left.isDown) vx -= 1;
+      if (this.cursors.right.isDown) vx += 1;
+      if (this.cursors.up.isDown) vy -= 1;
+      if (this.cursors.down.isDown) vy += 1;
+    }
     
     // Touch movement controls (left side of screen)
     if (this.touchMovePointer && this.touchMovePointer.isDown) {
