@@ -144,6 +144,76 @@ MAIL_DEFAULT_SENDER=your-email@gmail.com
 - `FLASK_ENV` - Flask environment (development/production)
 - `FLASK_DEBUG` - Enable debug mode (true/false)
 
+## Deployment
+
+### Frontend (GitHub Pages)
+
+The frontend is automatically deployed to GitHub Pages via GitHub Actions when you push to the `main` branch.
+
+**Important:** You need to configure the backend API URL for production:
+
+1. Go to your GitHub repository Settings > Secrets and variables > Actions
+2. Add a new secret named `VITE_API_BASE_URL`
+3. Set the value to your deployed backend URL (e.g., `https://your-backend.railway.app/api` or `https://your-backend.render.com/api`)
+
+### Backend Deployment
+
+The backend needs to be deployed separately since GitHub Pages only supports static websites. Here are recommended platforms:
+
+#### Option 1: Railway (Recommended)
+
+1. Sign up at [Railway](https://railway.app)
+2. Create a new project and connect your GitHub repository
+3. Add a new service (Railway will auto-detect the repo)
+4. **Set Root Directory** (IMPORTANT):
+   - Click on your service
+   - Go to **Settings** tab
+   - Scroll down to **Source** section
+   - Set **Root Directory** to `backend`
+   - Click **Save**
+   - Railway will now detect the Python app correctly
+5. If Root Directory option is not available, Railway will use the `Dockerfile` in the root directory
+6. Add environment variables in Railway dashboard (Settings > Variables):
+   - `MAIL_SERVER=smtp.gmail.com`
+   - `MAIL_PORT=587`
+   - `MAIL_USE_TLS=true`
+   - `MAIL_USERNAME=your-email@gmail.com`
+   - `MAIL_PASSWORD=your-app-password`
+   - `MAIL_DEFAULT_SENDER=your-email@gmail.com`
+   - `CORS_ORIGINS=https://ningxiaoyyang.github.io` (your GitHub Pages URL)
+7. Copy the deployed URL (e.g., `https://your-app.railway.app`) and add `/api` to get the API base URL
+8. Add this URL as `VITE_API_BASE_URL` secret in GitHub Actions
+
+#### Option 2: Render
+
+1. Sign up at [Render](https://render.com)
+2. Create a new Web Service
+3. Connect your GitHub repository
+4. Set:
+   - **Root Directory**: `backend`
+   - **Build Command**: `pip install -r requirements.txt`
+   - **Start Command**: `gunicorn run:app`
+5. Add environment variables in Render dashboard (same as Railway)
+6. Copy the deployed URL and configure `VITE_API_BASE_URL` in GitHub Actions
+
+#### Option 3: Heroku
+
+1. Install [Heroku CLI](https://devcenter.heroku.com/articles/heroku-cli)
+2. Create a `Procfile` in `backend/` (already exists)
+3. Deploy:
+   ```bash
+   cd backend
+   heroku create your-app-name
+   heroku config:set MAIL_SERVER=smtp.gmail.com MAIL_PORT=587 ...
+   git push heroku main
+   ```
+
+**After deploying the backend:**
+- Copy the backend URL (e.g., `https://your-backend.railway.app`)
+- Add `/api` to get the full API base URL: `https://your-backend.railway.app/api`
+- Add this as `VITE_API_BASE_URL` secret in GitHub repository Settings > Secrets > Actions
+- Trigger a new deployment or push to `main` to rebuild with the new API URL
+
 ## License
 
 MIT

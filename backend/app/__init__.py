@@ -8,7 +8,14 @@ def create_app(config_class=Config):
     app.config.from_object(config_class)
     
     # Enable CORS
-    CORS(app, resources={r"/api/*": {"origins": "*"}})
+    # Allow all origins in development, or specific origins from config in production
+    cors_origins = app.config.get('CORS_ORIGINS', '*')
+    if cors_origins == '*' or not cors_origins:
+      CORS(app, resources={r"/api/*": {"origins": "*"}})
+    else:
+      # Split comma-separated origins
+      origins_list = [origin.strip() for origin in cors_origins.split(',')]
+      CORS(app, resources={r"/api/*": {"origins": origins_list}})
     
     # Initialize Mail
     mail = Mail(app)
