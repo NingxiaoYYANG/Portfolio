@@ -13,8 +13,13 @@ def create_app(config_class=Config):
     if cors_origins == '*' or not cors_origins:
       CORS(app, resources={r"/api/*": {"origins": "*"}})
     else:
-      # Split comma-separated origins
-      origins_list = [origin.strip() for origin in cors_origins.split(',')]
+      # CORS_ORIGINS is already a list from config.py (split by comma)
+      # Handle both string and list cases
+      if isinstance(cors_origins, str):
+        origins_list = [origin.strip() for origin in cors_origins.split(',')]
+      else:
+        # Already a list
+        origins_list = [origin.strip() if isinstance(origin, str) else origin for origin in cors_origins]
       CORS(app, resources={r"/api/*": {"origins": origins_list}})
     
     # Initialize Mail

@@ -14,5 +14,5 @@ class Config:
     MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
     MAIL_DEFAULT_SENDER = os.environ.get('MAIL_DEFAULT_SENDER')
     
-    # CORS
-    CORS_ORIGINS = os.environ.get('CORS_ORIGINS', '*').split(',')
+    # CORS - keep as string, will be split in __init__.py if needed
+    CORS_ORIGINS = os.environ.get('CORS_ORIGINS', '*')
